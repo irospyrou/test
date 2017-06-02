@@ -1,42 +1,42 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Pacman</title>
-    <meta charset="utf-8">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-image: url("assets/bg.png");
-                background-attachment : fixed;
-                background-size : 100% auto;
-        }
-    </style>
-    <script src="//cdn.jsdelivr.net/phaser/2.2.2/phaser.min.js"></script>
+	<title>Pacman</title>
+	<meta charset="utf-8">
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			background-image: url("assets/bg.png");
+			background-attachment : fixed;
+			background-size : 100% auto;
+		}
+	</style>
+	<script src="//cdn.jsdelivr.net/phaser/2.2.2/phaser.min.js"></script>
 </head>
 <body>
 
-    <audio autoplay loop>
-        <source src="assets/supermario_bpi7cych.mp3" type="audio/mp3">
-    </audio>
+	<audio autoplay loop>
+		<source src="assets/supermario_bpi7cych.mp3" type="audio/mp3">
+	</audio>
     
-    <script type="text/javascript">
+	<script type="text/javascript">
 
-    var game = new Phaser.Game(450, 550, Phaser.AUTO);
+		var game = new Phaser.Game(450, 550, Phaser.AUTO);
 
-    var Pacman = function (game) {
+		var Pacman = function (game) {
 
-        this.map = null;
-        this.layer = null;
-        this.pacman = null;
+		this.map = null;
+		this.layer = null;
+		this.pacman = null;
 
-        this.safetile = 14;
-        this.gridsize = 16;
+		this.safetile = 14;
+		this.gridsize = 16;
 
-        this.speed = 150;
-        this.threshold = 3;
+		this.speed = 150;
+		this.threshold = 3;
 
-        this.marker = new Phaser.Point();
+		this.marker = new Phaser.Point();
         this.turnPoint = new Phaser.Point();
 
         this.directions = [ null, null, null, null, null ];
@@ -126,6 +126,11 @@
             this.scoreText = game.add.text(0, 500, 'Score: 0', { fontSize: '20px Calibri', fill: 'white' });
             
             this.bonusText = game.add.text(315, 500, 'Bonus: 0', { fontSize: '20px Calibri', fill: 'white' });
+	    
+	    var sec = '-';
+	    var min = '-';
+		this.time = game.add.text(0, 0, "Time: " + min + ":" + sec, { fontSize: '20px Calibri', fill: 'white' });
+		
 		
 	    var sprite = game.add.sprite(417, 465, 'mushroom1');
 		
@@ -142,6 +147,20 @@
 	    }
 
         },
+	    
+	    updateTime:function(){
+		    if( sec == '-'){
+		    	sec = 0;
+			min = 0;
+		    }
+		    else if( sec == 59 ){
+		    	min++;
+			sec = 0;
+		    }
+		    else{
+		    	sec++;
+		    }
+	    },
 
         checkKeys: function () {
 

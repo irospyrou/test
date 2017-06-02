@@ -154,20 +154,9 @@
 
         },
 	    
-	    updateTime:function(){
-		    if( sec == "-"){
-			    this.input.disabled = false;
-		    	sec = 0;
-			min = 0;
-		    }
-		    else if( sec == 59 ){
-		    	min++;
-			sec = 0;
-		    }
-		    else{
-		    	sec++;
-		    }
-	    },
+	   // updateTime:function(){
+		//    
+	    //},
 
         checkKeys: function () {
 
@@ -312,7 +301,18 @@
           
             this.physics.arcade.collide(this.pacman, this.layer);
             this.physics.arcade.overlap(this.pacman, this.dots, this.eatDot, null, this);
-		
+		if( sec == "-"){
+			    this.input.disabled = false;
+		    	sec = 0;
+			min = 0;
+		    }
+		    else if( sec == 59 ){
+		    	min++;
+			sec = 0;
+		    }
+		    else{
+		    	sec++;
+		    }
 		this.time.text = "Time: " + min + ":" + sec;
 
 	    this.physics.arcade.overlap(this.pacman, this.mushrooms, this.eatMushroom, null, this);

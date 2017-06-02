@@ -127,6 +127,8 @@
             
             this.bonusText = game.add.text(315, 500, 'Bonus: 0', { fontSize: '20px Calibri', fill: 'white' });
 	    
+	    var timer;
+		
 	    timer = game.time.create(false);
 	    timer.loop(100000000, this.updateTime, this);
 	    timer.start();

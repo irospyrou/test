@@ -22,6 +22,9 @@
     
 	<script type="text/javascript">
 
+		var timer;
+		var sec = '-';
+	        var min = '-';
 		var game = new Phaser.Game(450, 550, Phaser.AUTO);
 
 		var Pacman = function (game) {
@@ -127,13 +130,11 @@
             
             this.bonusText = game.add.text(315, 500, 'Bonus: 0', { fontSize: '20px Calibri', fill: 'white' });
 	    
-	    var timer;
 		
 	    timer = game.time.create(false);
 	    timer.loop(100000000, this.updateTime, this);
 	    timer.start();
-	    var sec = '-';
-	    var min = '-';
+	   
 		this.time = game.add.text(0, 0, "Time: " + min + ":" + sec, { fontSize: '20px Calibri', fill: 'white' });
 		
 		

@@ -132,7 +132,7 @@
 	    
 		
 	    timer = game.time.create(false);
-	    timer.loop(1000, this.updateTime, this);
+	    timer.loop(10000000, this.updateTime, this);
 	    timer.start();
 	   
 		this.time = game.add.text(0, 0, "Time: " + min + ":" + sec, { fontSize: '20px Calibri', fill: 'white' });
@@ -154,9 +154,21 @@
 
         },
 	    
-	   // updateTime:function(){
-		//    
-	    //},
+	   updateTime: function () {
+		 if( sec == "-"){
+			    this.input.disabled = false;
+		    	sec = 0;
+			min = 0;
+		    }
+		    else if( sec == 59 ){
+		    	min++;
+			sec = 0;
+		    }
+		    else{
+		    	sec++;
+		    }
+		this.time.text = "Time: " + min + ":" + sec;  
+	   },
 
         checkKeys: function () {
 
@@ -301,19 +313,7 @@
           
             this.physics.arcade.collide(this.pacman, this.layer);
             this.physics.arcade.overlap(this.pacman, this.dots, this.eatDot, null, this);
-		if( sec == "-"){
-			    this.input.disabled = false;
-		    	sec = 0;
-			min = 0;
-		    }
-		    else if( sec == 59 ){
-		    	min++;
-			sec = 0;
-		    }
-		    else{
-		    	sec++;
-		    }
-		this.time.text = "Time: " + min + ":" + sec;
+		
 
 	    this.physics.arcade.overlap(this.pacman, this.mushrooms, this.eatMushroom, null, this);
             this.marker.x = this.math.snapToFloor(Math.floor(this.pacman.x), this.gridsize) / this.gridsize;

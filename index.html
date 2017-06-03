@@ -23,347 +23,519 @@
 	<script type="text/javascript">
 
 		var timer;
+		var killCD = 0;
 		var ms = '-';
 		var sec = '-';
 	        var min = '-';
 		var game = new Phaser.Game(450, 550, Phaser.AUTO);
+		Zranddir = null;
+		Zdir = null;
 
 		var Pacman = function (game) {
 
-		this.map = null;
-		this.layer = null;
-		this.pacman = null;
+			this.map = null;
+			this.layer = null;
+			this.layer2 = null;
+			this.pacman = null;
+			this.z1 = null;
+			this.Zcurrent = Phaser.NONE;
+			this.Zturning = Phaser.NONE;
+			this.Zdir = Phaser.NONE;
+			this.Zranddir = Phaser.NONE;
+			this.lives = 1;
+			this.dead = false;
+			this.life1 = null;
+			this.life2 = null;
+			this.life3 = null;
 
-		this.safetile = 14;
-		this.gridsize = 16;
+			this.safetile = 14;
+			this.gridsize = 16;
 
-		this.speed = 150;
-		this.threshold = 3;
+			this.speed = 150;
+			this.threshold = 3;
 
-		this.marker = new Phaser.Point();
-        this.turnPoint = new Phaser.Point();
+			this.marker = new Phaser.Point();
+			this.turnPoint = new Phaser.Point();
 
-        this.directions = [ null, null, null, null, null ];
-        this.opposites = [ Phaser.NONE, Phaser.RIGHT, Phaser.LEFT, Phaser.DOWN, Phaser.UP ];
+			this.directions = [ null, null, null, null, null ];
+			this.opposites = [ Phaser.NONE, Phaser.RIGHT, Phaser.LEFT, Phaser.DOWN, Phaser.UP ];
 
-        this.current = Phaser.NONE;
-        this.turning = Phaser.NONE;
+			this.current = Phaser.NONE;
+			this.turning = Phaser.NONE;
         
-        this.score=0;
-        this.scoreText='';
+			this.score=0;
+			this.scoreText='';
         
-        this.bonus=0;
-	this.bonusText='';
+			this.bonus=0;
+			this.bonusText='';
 
-    };
+		};
 
-    Pacman.prototype = {
-
-        init: function () {
-
-            this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-            this.scale.pageAlignHorizontally = true;
-            this.scale.pageAlignVertically = true;
-
-            Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
-
-            this.physics.startSystem(Phaser.Physics.ARCADE);
-
-        },
-
-        preload: function () {
-
-            //  We need this because the assets are on github pages
-            //  Remove the next 2 lines if running locally
-            this.load.baseURL = 'https://irospyrou.github.io/test/';
-            this.load.crossOrigin = 'anonymous';
-	    this.load.image('mushroom1', 'assets/mushroom1.png');
-	    this.load.image('door', 'assets/door.png');
-            this.load.image('coin1', 'assets/coin1.png');
-	    this.load.image('star2', 'assets/star2.png');
-            this.load.image('tiles', 'assets/pacman-tiles.png');
-            this.load.spritesheet('mario2', 'assets/mario2.png', 32, 32);
-            this.load.tilemap('map', 'assets/pacman-map1.json', null, Phaser.Tilemap.TILED_JSON);
-
-            //  Needless to say, graphics (C)opyright Namco
-
-        },
-
-        create: function () {
-
-            this.map = this.add.tilemap('map');
-            this.map.addTilesetImage('pacman-tiles', 'tiles');
-
-            this.layer = this.map.createLayer('Pacman');
-
-            this.dots = this.add.physicsGroup();
-	    this.mushrooms = this.add.physicsGroup();
-		this.teleport = this.add.physicsGroup();
-
-            this.map.createFromTiles(7, this.safetile, 'coin1', this.layer, this.dots);
-	    //this.map.createFromTiles(35, this.safetile, 'mushroom1', this.layer, this.mushrooms);
-            this.map.createFromTiles(35, this.safetile, 'mushroom1', this.layer, this.mushrooms);
-            this.map.createFromTiles(36, this.safetile, 'door', this.layer, this.teleport);
-
-		//  The dots will need to be offset by 6px to put them back in the middle of the grid
-            this.dots.setAll('x', 6, false, false, 1);
-            this.dots.setAll('y', 6, false, false, 1);
+		Pacman.prototype = {
+	
+			init: function () {
+	
+				this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+				this.scale.pageAlignHorizontally = true;
+				this.scale.pageAlignVertically = true;	
+	
+				Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
+	
+				this.physics.startSystem(Phaser.Physics.ARCADE);
+	
+			},
+	
+			preload: function () {
+	
+				//  We need this because the assets are on github pages
+				//  Remove the next 2 lines if running locally
+				this.load.baseURL = 'https://irospyrou.github.io/test/';
+				this.load.crossOrigin = 'anonymous';
+				this.load.image('mushroom1', 'assets/mushroom1.png');
+				this.load.image('door', 'assets/door.png');
+				this.load.spritesheet('goomba', 'assets/goomba.png', 32, 32);
+				this.load.image('coin1', 'assets/coin1.png');
+				this.load.image('star2', 'assets/star2.png');
+				this.load.image('tiles', 'assets/pacman-tiles.png');
+				this.load.spritesheet('mario2', 'assets/mario2.png', 32, 32);
+				this.load.tilemap('map', 'assets/pacman-map1.json', null, Phaser.Tilemap.TILED_JSON);	
+	
+				//  Needless to say, graphics (C)opyright Namco
+	
+			},
+	
+			create: function () {
+	
+				this.map = this.add.tilemap('map');
+				this.map.addTilesetImage('pacman-tiles', 'tiles');
+	
+				this.layer = this.map.createLayer('Pacman');
+				this.layer2 = this.map.createLayer('Z');
+	
+				this.dots = this.add.physicsGroup();
+				this.mushrooms = this.add.physicsGroup();
+				this.teleport = this.add.physicsGroup();
 		
-	    this.mushrooms.setAll('x', 6, false, false, 1);
-            this.mushrooms.setAll('y', 6, false, false, 1);
+				this.map.createFromTiles(7, this.safetile, 'coin1', this.layer, this.dots);
+				//this.map.createFromTiles(35, this.safetile, 'mushroom1', this.layer, this.mushrooms);
+				this.map.createFromTiles(35, this.safetile, 'mushroom1', this.layer, this.mushrooms);
+				this.map.createFromTiles(36, this.safetile, 'door', this.layer, this.teleport);
+	
+				//  The dots will need to be offset by 6px to put them back in the middle of the grid
+				this.dots.setAll('x', 6, false, false, 1);
+				this.dots.setAll('y', 6, false, false, 1);
+				
+				this.mushrooms.setAll('x', 6, false, false, 1);	
+				this.mushrooms.setAll('y', 6, false, false, 1);
+	
+				//  Pacman should collide with everything except the safe tile
+				//this.map.setCollisionByExclusion([this.safetile], true, this.layer);
+				this.map.setCollisionByExclusion([this.safetile], true, this.layer);	
+				this.map.setCollisionByExclusion([this.safetile], true, this.layer2);
+				
+				//  Position Pacman at grid location 14x17 (the +8 accounts for his anchor)	
+				this.pacman = this.add.sprite((14 * 16) + 8, (17 * 16) + 8, 'mario2', 0);
+				this.pacman.anchor.set(0.5);
+				this.pacman.animations.add('munch', [0, 1, 2, 1], 20, true);
+	
+				this.physics.arcade.enable(this.pacman);
+				this.pacman.body.setSize(16, 16, 0, 0);
+			
+				// Position Goomba
+				this.z1 = this.add.sprite((9 * 16) + 8, (13 * 16) + 8, 'goomba', 0);
+				this.z1.anchor.set(0.5);
+				this.z1.animations.add('walk', [0, 1, 0], 20, true);
+				this.physics.arcade.enable(this.z1);
+				this.z1.body.setSize(16, 16, 0, 0);
+				this.z1.play('walk');
+				this.Zcurrent = Phaser.RIGHT;
+	
+				this.cursors = this.input.keyboard.createCursorKeys();
+	
+				this.pacman.play('munch');
+				this.move(Phaser.LEFT);
+	            
+				this.scoreText = game.add.text(0, 500, 'Score: 0', { fontSize: '20px Calibri', fill: 'white' });
+	            
+				this.bonusText = game.add.text(315, 500, 'Bonus: 0', { fontSize: '20px Calibri', fill: 'white' });
+		   
+				this.timeText = game.add.text(0, 0, "Time: " + min + ":" + sec, { fontSize: '20px Calibri', fill: 'white' });
+			
+				var sprite = game.add.sprite(417, 465, 'mushroom1');
+				
+				game.add.tween(sprite).to( { alpha: 0 }, 3000, Phaser.Easing.Linear.None, true);	
+				
+				this.life1 = this.add.sprite(175, 500, 'star2');
+				this.life2 = this.add.sprite(195, 500, 'star2');
+				this.life3 = this.add.sprite(215, 500, 'star2');
+				this.life2.visible = false;
+				this.life3.visible = false;
+				this.livesText = game.add.text(200, 500, "Lives: " + this.lives, { fontSize: "19px", fill: "#133913"});
+	
+			},
 
-            //  Pacman should collide with everything except the safe tile
-            //this.map.setCollisionByExclusion([this.safetile], true, this.layer);
-            this.map.setCollisionByExclusion([this.safetile], true, this.layer);
-
+			checkKeys: function () {
+	
+				if (this.cursors.left.isDown && this.current !== Phaser.LEFT)
+				{
+					this.checkDirection(Phaser.LEFT);
+				}
+				else if (this.cursors.right.isDown && this.current !== Phaser.RIGHT)
+				{
+					this.checkDirection(Phaser.RIGHT);	
+				}
+				else if (this.cursors.up.isDown && this.current !== Phaser.UP)
+				{
+					this.checkDirection(Phaser.UP);
+				}
+				else if (this.cursors.down.isDown && this.current !== Phaser.DOWN)
+				{
+					this.checkDirection(Phaser.DOWN);
+				}
+				else
+				{
+					//  This forces them to hold the key down to turn the corner
+					this.turning = Phaser.NONE;
+				}
+			},
+	
+			checkDirection: function (turnTo) {
+	
+				if (this.turning === turnTo || this.directions[turnTo] === null || this.directions[turnTo].index !== this.safetile)
+				{
+					//  Invalid direction if they're already set to turn that way
+					//  Or there is no tile there, or the tile isn't index 1 (a floor tile)
+					return;
+				}
+	
+				//  Check if they want to turn around and can
+					if (this.current === this.opposites[turnTo])
+				{
+					this.move(turnTo);
+				}
+				else
+				{
+					this.turning = turnTo;
+	
+					this.turnPoint.x = (this.marker.x * this.gridsize) + (this.gridsize / 2);
+					this.turnPoint.y = (this.marker.y * this.gridsize) + (this.gridsize / 2);
+				}
+			},
+	
+			turn: function () {	
+	
+				var cx = Math.floor(this.pacman.x);
+				var cy = Math.floor(this.pacman.y);
+	
+				//  This needs a threshold, because at high speeds you can't turn because the coordinates skip past
+				if (!this.math.fuzzyEqual(cx, this.turnPoint.x, this.threshold) || !this.math.fuzzyEqual(cy, this.turnPoint.y, this.threshold))
+				{
+					return false;	
+				}
+	
+				//  Grid align before turning
+				this.pacman.x = this.turnPoint.x;
+				this.pacman.y = this.turnPoint.y;
+	
+				this.pacman.body.reset(this.turnPoint.x, this.turnPoint.y);
 		
-            //  Position Pacman at grid location 14x17 (the +8 accounts for his anchor)
-            this.pacman = this.add.sprite((14 * 16) + 8, (17 * 16) + 8, 'mario2', 0);
-            this.pacman.anchor.set(0.5);
-            this.pacman.animations.add('munch', [0, 1, 2, 1], 20, true);
+				this.move(this.turning);
+	
+				this.turning = Phaser.NONE;
+		
+				return true;
+		
+			},
 
-            this.physics.arcade.enable(this.pacman);
-            this.pacman.body.setSize(16, 16, 0, 0);
+			move: function (direction) {
 
-            this.cursors = this.input.keyboard.createCursorKeys();
+				var speed = this.speed;
 
-            this.pacman.play('munch');
-            this.move(Phaser.LEFT);
+				if (direction === Phaser.LEFT || direction === Phaser.UP)
+				{
+					speed = -speed;
+				}
+	
+				if (direction === Phaser.LEFT || direction === Phaser.RIGHT)
+				{
+					this.pacman.body.velocity.x = speed;
+				}
+				else
+				{
+					this.pacman.body.velocity.y = speed;
+				}
+	
+				//  Reset the scale and angle (Pacman is facing to the right in the sprite sheet)
+				this.pacman.scale.x = 1;
+				this.pacman.angle = 0;
+
+				if (direction === Phaser.LEFT)
+				{
+					this.pacman.scale.x = -1;
+				}
+				else if (direction === Phaser.UP)
+				{
+					this.pacman.angle = 270;
+				}
+				else if (direction === Phaser.DOWN)
+				{
+					this.pacman.angle = 90;
+				}
+	
+				this.current = direction;
+			},
+		    
+			moveZ: function (direction, z) {
+	
+				var Zspeed = this.speed;
+	
+				if (direction === Phaser.LEFT || direction === Phaser.UP)
+				{
+					Zspeed = -Zspeed;
+				}
+	
+				if (direction === Phaser.LEFT || direction === Phaser.RIGHT)
+				{
+					z.body.velocity.x = Zspeed;
+				}
+				else
+				{
+					z.body.velocity.y = Zspeed;
+				}
+	
+					//  Reset the scale and angle (Pacman is facing to the right in the sprite sheet)
+				z.scale.x = 1;
+				z.angle = 0;
+		
+				if (direction === Phaser.LEFT)
+				{
+					z.scale.x = -1;
+				}
+				else if (direction === Phaser.UP)
+				{
+					z.angle = 270;
+				}
+				else if (direction === Phaser.DOWN)
+				{
+					z.angle = 90;
+				}
+	
+				this.current = direction;
+				if( this.Zcurrent == Phaser.NONE ) { 
+					this.Zcurrent = Phaser.RIGHT; 
+				}
+			},
+			
+			checkZKeys: function( z ){
+				if( this.Zcurrent == Phaser.NONE ) { 
+					this.Zcurrent = Phaser.RIGHT; 
+				}
+				if( this.Zcurrent == Phaser.RIGHT || this.Zcurrent == Phaser.LEFT ){
+					this.Zranddir = game.rnd.integerInRange(1, 2);
+					if ( this.Zranddir == 1) { this.Zdir = Phaser.UP }
+					else if ( this.Zranddir == 2) { this.Zdir = Phaser.DOWN }
+					this.moveZ(this.Zdir, z);
+				}
+				else if( this.Zcurrent == Phaser.UP || this.Zcurrent == Phaser.DOWN ){
+					this.Zranddir = game.rnd.integerInRange(1, 4);
+					if ( this.Zranddir == 1) { this.Zdir = Phaser.LEFT }
+					else if ( this.Zranddir == 4) { this.Zdir = Phaser.RIGHT }
+					this.moveZ(this.Zdir, z);
+				}
+				if( this.Zdir == Phaser.NONE ){
+					this.Zdir = Phaser.RIGHT;
+					this.moveZ(this.Zdir, z);
+				}
+			},
+			
+			checkZDirection: function (turnTo) {
+				if (this.Zturning === turnTo || this.directions[turnTo] === null || this.directions[turnTo].index !== 1)
+				{
+					//  Invalid direction if they're already set to turn that way
+					//  Or there is no tile there, or the tile isn't index 1 (a floor tile)
+					return;
+				}
+				//  Check if they want to turn around and can
+				if (this.Zcurrent === this.opposites[turnTo])
+				{
+					this.moveZ(turnTo);
+				}
+				else
+				{
+					this.Zturning = turnTo;
+					this.turnPoint.x = (this.marker.x * this.gridsize) + (this.gridsize / 2);
+					this.turnPoint.y = (this.marker.y * this.gridsize) + (this.gridsize / 2);
+				}
+			},
+			
+			turnZ: function (z) {
+				var cx = Math.floor(z.x);
+				var cy = Math.floor(z.y);
+				//  This needs a threshold, because at high speeds you can't turn because the coordinates skip past
+				if (!this.math.fuzzyEqual(cx, this.turnPoint.x, this.threshold) || !this.math.fuzzyEqual(cy, this.turnPoint.y, this.threshold))
+				{
+					return false;
+				}
+				//  Grid align before Zturning
+				z.x = this.turnPoint.x;
+				z.y = this.turnPoint.y;
+				if( z.body != null ){
+					z.body.reset(this.turnPoint.x, this.turnPoint.y);
+					this.moveZ(this.Zturning, z);
+					this.Zturning = Phaser.NONE;
+				}
+			
+				return true;
+			},
+				
+			killMario: function( z ){
+				if( killCD != 0 ){
+					z.destroy();
+				}
+				else{
+					this.lives--;
+					this.pacman.destroy();
+					this.pacman = this.add.sprite((14 * 16) + 8, (17 * 16) + 8, 'mario2', 0);
+					this.pacman.anchor.set(0.5);
+					this.pacman.animations.add('munch', [0, 1, 2, 1], 20, true);
+	
+					this.physics.arcade.enable(this.pacman);
+					this.pacman.body.setSize(16, 16, 0, 0);
+	
+					this.cursors = this.input.keyboard.createCursorKeys();
+	
+					this.pacman.play('munch');
+					this.move(Phaser.LEFT);
+					if (this.lives == 0){
+						this.pacman.dead = true;
+						this.pacman.destroy();
+					}
+				}
+			},	
+	
+			eatDot: function (pacman, dot) {
+	
+				dot.kill();	
+	
+				var audio = new Audio('assets/super_mario_coin.mp3');
+				audio.play()
+        	    
+				this.score+=1;//anebasma tou score
+				this.scoreText.text= 'Score: ' + this.score;
             
-            this.scoreText = game.add.text(0, 500, 'Score: 0', { fontSize: '20px Calibri', fill: 'white' });
-            
-            this.bonusText = game.add.text(315, 500, 'Bonus: 0', { fontSize: '20px Calibri', fill: 'white' });
-	    
+				if (this.dots.total === 0)
+				{
+					this.dots.callAll('revive');
+				}
+	
+			},
+		    
+			eatMushroom: function(pacman,mushroom1){	
+				mushroom1.kill();
+				this.bonus+=10;//anebasma score
+				this.bonusText.text= 'Bonus: ' + this.bonus;
+				var audio = new Audio('assets/smb_1-up.wav');//mousiki bonus
+				audio.play()
+				killCD = 5;
+,
+			},
+		    
+			door: function() {
+				this.pacman.destroy();
+				this.pacman = this.add.sprite((14 * 16) + 8, (17 * 16) + 8, 'mario2', 0);
+				this.pacman.anchor.set(0.5);
+				this.pacman.animations.add('munch', [0, 1, 2, 1], 20, true);
+	
+				this.physics.arcade.enable(this.pacman);
+				this.pacman.body.setSize(16, 16, 0, 0);
+	
+				this.cursors = this.input.keyboard.createCursorKeys();
+	
+				this.pacman.play('munch');
+				this.move(Phaser.LEFT);
+				},
+		    
+			update: function () {
+				
+				if(this.pacman.dead==true){						///+++   GAME OVER
+					this.input.disabled = true;
+					this.speed=0;
+				}
+				
+				if( ms == "-"){
+					// this.input.disabled = false;
+					ms = 0;
+					sec = 0;
+					min = 0;
+				}
+				else if( ms == 59 ){
+					sec++;
+					ms = 0;
+					if (sec == 59 ){
+						sec = 0;
+						min++;
+					}
+					if ( killCD >=0 ){
+						killCD--;
+					}
+				}
+				else{
+					ms++;
+				}	
+				this.physics.arcade.collide(this.pacman, this.layer);
+				this.physics.arcade.overlap(this.pacman, this.dots, this.eatDot, null, this);
+				this.physics.arcade.overlap(this.pacman, this.teleport, this.door, null, this);
+				this.timeText.text = "Time: " + min + ":" + sec;
+				this.livesText.text = "Lives: ";
+				if(this.lives==0){
+					this.life1.visible = false;
+					this.life2.visible = false;
+					this.life3.visible = false;
+				}
+				else if(this.lives==1){
+					this.life1.visible = true;
+					this.life2.visible = false;
+					this.life3.visible = false;
+				}
+				else if(this.lives==2){
+					this.life1.visible = true;
+					this.life2.visible = true;
+					this.life3.visible = false;
+				}
+				else if(this.lives==3){
+					this.life1.visible = true;
+					this.life2.visible = true;
+					this.life3.visible = true;
+				}
+			
+				this.physics.arcade.collide(this.z1, this.layer2, this.checkZKeys, null, this);
+				this.physics.arcade.overlap(this.z1, this.pacman, this.killMario, null, this);
+			
 		
-	    //timer = game.time.create(false);
-	   // timer.loop(10000000, this.updateTime, this);
-	    //timer.start();
-	   
-		this.time = game.add.text(0, 0, "Time: " + min + ":" + sec, { fontSize: '20px Calibri', fill: 'white' });
-		
-		
-	    var sprite = game.add.sprite(417, 465, 'mushroom1');
-		
-	    game.add.tween(sprite).to( { alpha: 0 }, 3000, Phaser.Easing.Linear.None, true);	
-		
-	    lives = game.add.group();
-            game.add.text(game.world.width - 310, 500, 'Lives : ', { fontSize: '20px Calibri', fill: 'white' });
-		
-	    for (var i = 0; i < 3; i++) {
-			var pacman = lives.create(game.world.width - 210 + (30 * i), 517, 'star2');
-			pacman.anchor.setTo(0.5, 0.5);
-			pacman.angle = 90;
-			pacman.alpha = 0.4;
-	    }
-
-        },
-	    
-	  // updateTime: function () {
-		
-		  
-	  // },
-
-        checkKeys: function () {
-
-            if (this.cursors.left.isDown && this.current !== Phaser.LEFT)
-            {
-                this.checkDirection(Phaser.LEFT);
-            }
-            else if (this.cursors.right.isDown && this.current !== Phaser.RIGHT)
-            {
-                this.checkDirection(Phaser.RIGHT);
-            }
-            else if (this.cursors.up.isDown && this.current !== Phaser.UP)
-            {
-                this.checkDirection(Phaser.UP);
-            }
-            else if (this.cursors.down.isDown && this.current !== Phaser.DOWN)
-            {
-                this.checkDirection(Phaser.DOWN);
-            }
-            else
-            {
-                //  This forces them to hold the key down to turn the corner
-                this.turning = Phaser.NONE;
-            }
-
-        },
-
-        checkDirection: function (turnTo) {
-
-            if (this.turning === turnTo || this.directions[turnTo] === null || this.directions[turnTo].index !== this.safetile)
-            {
-                //  Invalid direction if they're already set to turn that way
-                //  Or there is no tile there, or the tile isn't index 1 (a floor tile)
-                return;
-            }
-
-            //  Check if they want to turn around and can
-            if (this.current === this.opposites[turnTo])
-            {
-                this.move(turnTo);
-            }
-            else
-            {
-                this.turning = turnTo;
-
-                this.turnPoint.x = (this.marker.x * this.gridsize) + (this.gridsize / 2);
-                this.turnPoint.y = (this.marker.y * this.gridsize) + (this.gridsize / 2);
-            }
-
-        },
-
-        turn: function () {
-
-            var cx = Math.floor(this.pacman.x);
-            var cy = Math.floor(this.pacman.y);
-
-            //  This needs a threshold, because at high speeds you can't turn because the coordinates skip past
-            if (!this.math.fuzzyEqual(cx, this.turnPoint.x, this.threshold) || !this.math.fuzzyEqual(cy, this.turnPoint.y, this.threshold))
-            {
-                return false;
-            }
-
-            //  Grid align before turning
-            this.pacman.x = this.turnPoint.x;
-            this.pacman.y = this.turnPoint.y;
-
-            this.pacman.body.reset(this.turnPoint.x, this.turnPoint.y);
-
-            this.move(this.turning);
-
-            this.turning = Phaser.NONE;
-
-            return true;
-
-        },
-
-        move: function (direction) {
-
-            var speed = this.speed;
-
-            if (direction === Phaser.LEFT || direction === Phaser.UP)
-            {
-                speed = -speed;
-            }
-
-            if (direction === Phaser.LEFT || direction === Phaser.RIGHT)
-            {
-                this.pacman.body.velocity.x = speed;
-            }
-            else
-            {
-                this.pacman.body.velocity.y = speed;
-            }
-
-            //  Reset the scale and angle (Pacman is facing to the right in the sprite sheet)
-            this.pacman.scale.x = 1;
-            this.pacman.angle = 0;
-
-            if (direction === Phaser.LEFT)
-            {
-                this.pacman.scale.x = -1;
-            }
-            else if (direction === Phaser.UP)
-            {
-                this.pacman.angle = 270;
-            }
-            else if (direction === Phaser.DOWN)
-            {
-                this.pacman.angle = 90;
-            }
-
-            this.current = direction;
-
-        },
-
-        eatDot: function (pacman, dot) {
-
-            dot.kill();
-
-            var audio = new Audio('assets/super_mario_coin.mp3');
-            audio.play()
-            
-            this.score+=1;//anebasma tou score
-            this.scoreText.text= 'Score: ' + this.score;
-            
-            if (this.dots.total === 0)
-            {
-                this.dots.callAll('revive');
-            }
-
-        },
-	    
-	eatMushroom: function(pacman,mushroom1){
-            mushroom1.kill();
-	    this.bonus+=10;//anebasma score
-            this.bonusText.text= 'Bonus: ' + this.bonus;
-	    var audio = new Audio('assets/smb_1-up.wav');//mousiki bonus
-            audio.play()
-        },
-	    
-	door: function() {
-		this.pacman.destroy();
-		this.pacman = this.add.sprite((14 * 16) + 8, (17 * 16) + 8, 'mario2', 0);
-            this.pacman.anchor.set(0.5);
-            this.pacman.animations.add('munch', [0, 1, 2, 1], 20, true);
-
-            this.physics.arcade.enable(this.pacman);
-            this.pacman.body.setSize(16, 16, 0, 0);
-
-            this.cursors = this.input.keyboard.createCursorKeys();
-
-            this.pacman.play('munch');
-            this.move(Phaser.LEFT);
-	},
-	    
-        update: function () {
-           if( ms == "-"){
-			   // this.input.disabled = false;
-		    	ms = 0;
-		   sec = 0;
-			min = 0;
-		    }
-		    else if( ms == 59 ){
-		    	sec++;
-			ms = 0;
-			    if (sec == 59 ){
-			    	sec = 0;
-			    	min++;
-			    }
-		    }
-		    else{
-		    	ms++;
-		    }
-            this.physics.arcade.collide(this.pacman, this.layer);
-            this.physics.arcade.overlap(this.pacman, this.dots, this.eatDot, null, this);
-	    this.physics.arcade.overlap(this.pacman, this.teleport, this.door, null, this);
-		this.time.text = "Time: " + min + ":" + sec;
-		
-	    this.physics.arcade.overlap(this.pacman, this.mushrooms, this.eatMushroom, null, this);
-            this.marker.x = this.math.snapToFloor(Math.floor(this.pacman.x), this.gridsize) / this.gridsize;
-            this.marker.y = this.math.snapToFloor(Math.floor(this.pacman.y), this.gridsize) / this.gridsize;
-
-            //  Update our grid sensors
-            this.directions[1] = this.map.getTileLeft(this.layer.index, this.marker.x, this.marker.y);
-            this.directions[2] = this.map.getTileRight(this.layer.index, this.marker.x, this.marker.y);
-            this.directions[3] = this.map.getTileAbove(this.layer.index, this.marker.x, this.marker.y);
-            this.directions[4] = this.map.getTileBelow(this.layer.index, this.marker.x, this.marker.y);
-
-            this.checkKeys();
-
-            if (this.turning !== Phaser.NONE)
-            {
-                this.turn();
-            }
-
-        }
-
-    };
-
-    game.state.add('Game', Pacman, true);
-
-    </script>
+				this.physics.arcade.overlap(this.pacman, this.mushrooms, this.eatMushroom, null, this);
+				this.marker.x = this.math.snapToFloor(Math.floor(this.pacman.x), this.gridsize) / this.gridsize;
+				this.marker.y = this.math.snapToFloor(Math.floor(this.pacman.y), this.gridsize) / this.gridsize;
+	
+				//  Update our grid sensors
+				this.directions[1] = this.map.getTileLeft(this.layer.index, this.marker.x, this.marker.y);
+				this.directions[2] = this.map.getTileRight(this.layer.index, this.marker.x, this.marker.y);
+				this.directions[3] = this.map.getTileAbove(this.layer.index, this.marker.x, this.marker.y);
+				this.directions[4] = this.map.getTileBelow(this.layer.index, this.marker.x, this.marker.y);
+	
+				this.checkKeys();
+	
+				if (this.turning !== Phaser.NONE)
+				{
+					this.turn();
+				}
+				
+				this.turnZ(this.z1);
+	
+			}
+		};
+		game.state.add('Game', Pacman, true);
+	
+	</script>
 
 </body>
 </html>

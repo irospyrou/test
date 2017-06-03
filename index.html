@@ -42,7 +42,6 @@
 			this.Zturning = Phaser.NONE;
 			this.Zdir = Phaser.NONE;
 			this.Zranddir = Phaser.NONE;
-			this.lives = 3;
 			this.dead = false;
 			this.life1 = null;
 			this.life2 = null;
@@ -68,7 +67,10 @@
         
 			this.bonus=0;
 			this.bonusText='';
-
+			
+			this.lives = 3;
+			this.livesText='';
+		
 		};
 
 		Pacman.prototype = {
@@ -462,6 +464,7 @@
 				
 				if( ms == "-"){
 					// this.input.disabled = false;
+					this.moveZ(Phaser.LEFT, this.z1);
 					ms = 0;
 					sec = 0;
 					min = 0;

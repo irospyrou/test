@@ -24,7 +24,6 @@
 		
 		var game = new Phaser.Game(450, 550, Phaser.AUTO);
 		
-		var timer;
 		var killCD = 0;
 		var ms = '-';
 		var sec = '-';
@@ -43,7 +42,7 @@
 			this.Zturning = Phaser.NONE;
 			this.Zdir = Phaser.NONE;
 			this.Zranddir = Phaser.NONE;
-			this.lives = 1;
+			this.lives = 3;
 			this.dead = false;
 			this.life1 = null;
 			this.life2 = null;
@@ -138,7 +137,8 @@
 				this.pacman = this.add.sprite((14 * 16) + 8, (17 * 16) + 8, 'mario2', 0);
 				this.pacman.anchor.set(0.5);
 				this.pacman.animations.add('munch', [0, 1, 2, 1], 20, true);
-	
+				this.pacman.play('munch');
+				this.move(Phaser.LEFT);
 				this.physics.arcade.enable(this.pacman);
 				this.pacman.body.setSize(16, 16, 0, 0);
 			
@@ -153,8 +153,7 @@
 	
 				this.cursors = this.input.keyboard.createCursorKeys();
 	
-				this.pacman.play('munch');
-				this.move(Phaser.LEFT);
+				
 	            
 				this.scoreText = game.add.text(0, 500, 'Score: 0', { fontSize: '20px Calibri', fill: 'white' });
 	            
@@ -169,8 +168,6 @@
 				this.life1 = this.add.sprite(175, 500, 'star2');
 				this.life2 = this.add.sprite(195, 500, 'star2');
 				this.life3 = this.add.sprite(215, 500, 'star2');
-				this.life2.visible = false;
-				this.life3.visible = false;
 				this.livesText = game.add.text(200, 500, "Lives: " + this.lives, { fontSize: "19px", fill: "#133913"});
 	
 			},

@@ -28,20 +28,20 @@
 		var ms = '-';
 		var sec = '-';
 	        var min = '-';
-		Zranddir = null;
-		Zdir = null;
+//		Zranddir = null;
+//		Zdir = null;
 
 		var Pacman = function (game) {
 
 			this.map = null;
 			this.layer = null;
-			this.layer2 = null;
+//			this.layer2 = null;
 			this.pacman = null;
-			this.z1 = null;
-			this.Zcurrent = Phaser.NONE;
-			this.Zturning = Phaser.NONE;
-			this.Zdir = Phaser.NONE;
-			this.Zranddir = Phaser.NONE;
+///			this.z1 = null;
+//			this.Zcurrent = Phaser.NONE;
+//			this.Zturning = Phaser.NONE;
+//			this.Zdir = Phaser.NONE;
+//			this.Zranddir = Phaser.NONE;
 			this.dead = false;
 			this.life1 = null;
 			this.life2 = null;
@@ -112,14 +112,13 @@
 				this.map.addTilesetImage('pacman-tiles', 'tiles');
 	
 				this.layer = this.map.createLayer('Pacman');
-				this.layer2 = this.map.createLayer('Z');
+//				this.layer2 = this.map.createLayer('Z');
 	
 				this.dots = this.add.physicsGroup();
 				this.mushrooms = this.add.physicsGroup();
 				this.teleport = this.add.physicsGroup();
 		
 				this.map.createFromTiles(7, this.safetile, 'coin1', this.layer, this.dots);
-				//this.map.createFromTiles(35, this.safetile, 'mushroom1', this.layer, this.mushrooms);
 				this.map.createFromTiles(35, this.safetile, 'mushroom1', this.layer, this.mushrooms);
 				this.map.createFromTiles(36, this.safetile, 'door', this.layer, this.teleport);
 	
@@ -133,7 +132,7 @@
 				//  Pacman should collide with everything except the safe tile
 				//this.map.setCollisionByExclusion([this.safetile], true, this.layer);
 				this.map.setCollisionByExclusion([this.safetile], true, this.layer);	
-				this.map.setCollisionByExclusion([this.safetile], true, this.layer2);
+//				this.map.setCollisionByExclusion([this.safetile], true, this.layer2);
 				
 				//  Position Pacman at grid location 14x17 (the +8 accounts for his anchor)	
 				this.pacman = this.add.sprite((14 * 16) + 8, (17 * 16) + 8, 'mario2', 0);
@@ -145,13 +144,13 @@
 				this.pacman.body.setSize(16, 16, 0, 0);
 			
 				// Position Goomba
-				this.z1 = this.add.sprite((9 * 16) + 8, (13 * 16) + 8, 'goomba', 0);
-				this.z1.anchor.set(0.5);
-				this.z1.animations.add('walk', [0, 1, 0], 20, true);
-				this.physics.arcade.enable(this.z1);
-				this.z1.body.setSize(16, 16, 0, 0);
-				this.z1.play('walk');
-				this.Zcurrent = Phaser.RIGHT;
+//				this.z1 = this.add.sprite((9 * 16) + 8, (13 * 16) + 8, 'goomba', 0);
+//				this.z1.anchor.set(0.5);
+//				this.z1.animations.add('walk', [0, 1, 0], 20, true);
+//				this.physics.arcade.enable(this.z1);
+//				this.z1.body.setSize(16, 16, 0, 0);
+//				this.z1.play('walk');
+//				this.Zcurrent = Phaser.RIGHT;
 	
 				this.cursors = this.input.keyboard.createCursorKeys();
 	
@@ -285,133 +284,133 @@
 				this.current = direction;
 			},
 		    
-			moveZ: function (direction, z) {
-	
-				var Zspeed = this.speed;
-	
-				if (direction === Phaser.LEFT || direction === Phaser.UP)
-				{
-					Zspeed = -Zspeed;
-				}
-	
-				if (direction === Phaser.LEFT || direction === Phaser.RIGHT)
-				{
-					z.body.velocity.x = Zspeed;
-				}
-				else
-				{
-					z.body.velocity.y = Zspeed;
-				}
-	
-					//  Reset the scale and angle (Pacman is facing to the right in the sprite sheet)
-				z.scale.x = 1;
-				z.angle = 0;
-		
-				if (direction === Phaser.LEFT)
-				{
-					z.scale.x = -1;
-				}
-				else if (direction === Phaser.UP)
-				{
-					z.angle = 270;
-				}
-				else if (direction === Phaser.DOWN)
-				{
-					z.angle = 90;
-				}
-	
-				this.current = direction;
-				if( this.Zcurrent == Phaser.NONE ) { 
-					this.Zcurrent = Phaser.RIGHT; 
-				}
-			},
-			
-			checkZKeys: function( z ){
-				if( this.Zcurrent == Phaser.NONE ) { 
-					this.Zcurrent = Phaser.RIGHT; 
-				}
-				if( this.Zcurrent == Phaser.RIGHT || this.Zcurrent == Phaser.LEFT ){
-					this.Zranddir = game.rnd.integerInRange(1, 2);
-					if ( this.Zranddir == 1) { this.Zdir = Phaser.UP }
-					else if ( this.Zranddir == 2) { this.Zdir = Phaser.DOWN }
-					this.moveZ(this.Zdir, z);
-				}
-				else if( this.Zcurrent == Phaser.UP || this.Zcurrent == Phaser.DOWN ){
-					this.Zranddir = game.rnd.integerInRange(1, 4);
-					if ( this.Zranddir == 1) { this.Zdir = Phaser.LEFT }
-					else if ( this.Zranddir == 4) { this.Zdir = Phaser.RIGHT }
-					this.moveZ(this.Zdir, z);
-				}
-				if( this.Zdir == Phaser.NONE ){
-					this.Zdir = Phaser.RIGHT;
-					this.moveZ(this.Zdir, z);
-				}
-			},
-			
-			checkZDirection: function (turnTo) {
-				if (this.Zturning === turnTo || this.directions[turnTo] === null || this.directions[turnTo].index !== 1)
-				{
-					//  Invalid direction if they're already set to turn that way
-					//  Or there is no tile there, or the tile isn't index 1 (a floor tile)
-					return;
-				}
-				//  Check if they want to turn around and can
-				if (this.Zcurrent === this.opposites[turnTo])
-				{
-					this.moveZ(turnTo);
-				}
-				else
-				{
-					this.Zturning = turnTo;
-					this.turnPoint.x = (this.marker.x * this.gridsize) + (this.gridsize / 2);
-					this.turnPoint.y = (this.marker.y * this.gridsize) + (this.gridsize / 2);
-				}
-			},
-			
-			turnZ: function (z) {
-				var cx = Math.floor(z.x);
-				var cy = Math.floor(z.y);
-				//  This needs a threshold, because at high speeds you can't turn because the coordinates skip past
-				if (!this.math.fuzzyEqual(cx, this.turnPoint.x, this.threshold) || !this.math.fuzzyEqual(cy, this.turnPoint.y, this.threshold))
-				{
-					return false;
-				}
-				//  Grid align before Zturning
-				z.x = this.turnPoint.x;
-				z.y = this.turnPoint.y;
-				if( z.body != null ){
-					z.body.reset(this.turnPoint.x, this.turnPoint.y);
-					this.moveZ(this.Zturning, z);
-					this.Zturning = Phaser.NONE;
-				}
-			
-				return true;
-			},
-				
-			killMario: function( z ){
-				if( killCD != 0 ){
-					z.destroy();
-				}
-				else{
-					this.lives--;
-					this.pacman.destroy();
-					this.pacman = this.add.sprite((14 * 16) + 8, (17 * 16) + 8, 'mario2', 0);
-					this.pacman.anchor.set(0.5);
-					this.pacman.animations.add('munch', [0, 1, 2, 1], 20, true);
-	
-					this.physics.arcade.enable(this.pacman);
-					this.pacman.body.setSize(16, 16, 0, 0);
-	
-					this.cursors = this.input.keyboard.createCursorKeys();
-	
-					this.pacman.play('munch');
-					this.move(Phaser.LEFT);
-					if (this.lives == 0){
-						this.pacman.dead = true;
-						this.pacman.destroy();
-					}
-				}
-			},	
+//			moveZ: function (direction, z) {
+//	
+//				var Zspeed = this.speed;
+//	
+//				if (direction === Phaser.LEFT || direction === Phaser.UP)
+//				{
+//					Zspeed = -Zspeed;
+//				}
+//	
+//				if (direction === Phaser.LEFT || direction === Phaser.RIGHT)
+//				{
+//					z.body.velocity.x = Zspeed;
+//				}
+//				else
+//				{
+//					z.body.velocity.y = Zspeed;
+//				}
+//	
+//					//  Reset the scale and angle (Pacman is facing to the right in the sprite sheet)
+//				z.scale.x = 1;
+//				z.angle = 0;
+//		
+//				if (direction === Phaser.LEFT)
+//				{
+//					z.scale.x = -1;
+//				}
+//				else if (direction === Phaser.UP)
+//				{
+//					z.angle = 270;
+//				}
+//				else if (direction === Phaser.DOWN)
+//				{
+//					z.angle = 90;
+//				}
+//	
+//				this.current = direction;
+//				if( this.Zcurrent == Phaser.NONE ) { 
+//					this.Zcurrent = Phaser.RIGHT; 
+//				}
+//			},
+//			
+//			checkZKeys: function( z ){
+//				if( this.Zcurrent == Phaser.NONE ) { 
+//					this.Zcurrent = Phaser.RIGHT; 
+//				}
+//				if( this.Zcurrent == Phaser.RIGHT || this.Zcurrent == Phaser.LEFT ){
+//					this.Zranddir = game.rnd.integerInRange(1, 2);
+//					if ( this.Zranddir == 1) { this.Zdir = Phaser.UP }
+//					else if ( this.Zranddir == 2) { this.Zdir = Phaser.DOWN }
+//					this.moveZ(this.Zdir, z);
+//				}
+//				else if( this.Zcurrent == Phaser.UP || this.Zcurrent == Phaser.DOWN ){
+//					this.Zranddir = game.rnd.integerInRange(1, 4);
+//					if ( this.Zranddir == 1) { this.Zdir = Phaser.LEFT }
+//					else if ( this.Zranddir == 4) { this.Zdir = Phaser.RIGHT }
+//					this.moveZ(this.Zdir, z);
+//				}
+//				if( this.Zdir == Phaser.NONE ){
+//					this.Zdir = Phaser.RIGHT;
+//					this.moveZ(this.Zdir, z);
+//				}
+//			},
+//			
+//			checkZDirection: function (turnTo) {
+//				if (this.Zturning === turnTo || this.directions[turnTo] === null || this.directions[turnTo].index !== 1)
+//				{
+//					//  Invalid direction if they're already set to turn that way
+//					//  Or there is no tile there, or the tile isn't index 1 (a floor tile)
+//					return;
+//				}
+//				//  Check if they want to turn around and can
+//				if (this.Zcurrent === this.opposites[turnTo])
+//				{
+//					this.moveZ(turnTo);
+//				}
+//				else
+//				{
+//					this.Zturning = turnTo;
+//					this.turnPoint.x = (this.marker.x * this.gridsize) + (this.gridsize / 2);
+//					this.turnPoint.y = (this.marker.y * this.gridsize) + (this.gridsize / 2);
+//				}
+//			},
+//			
+//			turnZ: function (z) {
+//				var cx = Math.floor(z.x);
+//				var cy = Math.floor(z.y);
+//				//  This needs a threshold, because at high speeds you can't turn because the coordinates skip past
+//				if (!this.math.fuzzyEqual(cx, this.turnPoint.x, this.threshold) || !this.math.fuzzyEqual(cy, this.turnPoint.y, this.threshold))
+//				{
+//					return false;
+//				}
+//				//  Grid align before Zturning
+//				z.x = this.turnPoint.x;
+//				z.y = this.turnPoint.y;
+//				if( z.body != null ){
+//					z.body.reset(this.turnPoint.x, this.turnPoint.y);
+//					this.moveZ(this.Zturning, z);
+//					this.Zturning = Phaser.NONE;
+//				}
+//			
+//				return true;
+//			},
+//				
+//			killMario: function( z ){
+//				if( killCD != 0 ){
+//					z.destroy();
+//				}
+//				else{
+//					this.lives--;
+//					this.pacman.destroy();
+//					this.pacman = this.add.sprite((14 * 16) + 8, (17 * 16) + 8, 'mario2', 0);
+//					this.pacman.anchor.set(0.5);
+//					this.pacman.animations.add('munch', [0, 1, 2, 1], 20, true);
+//	
+//					this.physics.arcade.enable(this.pacman);
+//					this.pacman.body.setSize(16, 16, 0, 0);
+//	
+//					this.cursors = this.input.keyboard.createCursorKeys();
+//	
+//					this.pacman.play('munch');
+//					this.move(Phaser.LEFT);
+//					if (this.lives == 0){
+//						this.pacman.dead = true;
+//						this.pacman.destroy();
+//					}
+//				}
+//			},	
 	
 			eatDot: function (pacman, dot) {
 	
@@ -436,8 +435,7 @@
 				this.bonusText.text= 'Bonus: ' + this.bonus;
 				var audio = new Audio('assets/smb_1-up.wav');//mousiki bonus
 				audio.play()
-				killCD = 5;
-,
+//				killCD = 5;
 			},
 		    
 			door: function() {
@@ -457,14 +455,14 @@
 		    
 			update: function () {
 				
-				if(this.pacman.dead==true){						///+++   GAME OVER
-					this.input.disabled = true;
-					this.speed=0;
-				}
+//				if(this.pacman.dead==true){						///+++   GAME OVER
+//					this.input.disabled = true;
+//					this.speed=0;
+//				}
 				
 				if( ms == "-"){
 					// this.input.disabled = false;
-					this.moveZ(Phaser.LEFT, this.z1);
+//					this.moveZ(Phaser.LEFT, this.z1);
 					ms = 0;
 					sec = 0;
 					min = 0;
@@ -476,9 +474,9 @@
 						sec = 0;
 						min++;
 					}
-					if ( killCD >=0 ){
-						killCD--;
-					}
+//					if ( killCD >=0 ){
+//						killCD--;
+//					}
 				}
 				else{
 					ms++;
@@ -530,7 +528,7 @@
 					this.turn();
 				}
 				
-				this.turnZ(this.z1);
+//				this.turnZ(this.z1);
 	
 			}
 		};

@@ -24,7 +24,7 @@
 		
 		var game = new Phaser.Game(450, 550, Phaser.AUTO);
 		
-		var killCD = 0;
+//		var killCD = 0;
 		var ms = '-';
 		var sec = '-';
 	        var min = '-';
@@ -507,11 +507,11 @@
 					this.life3.visible = true;
 				}
 			
-				this.physics.arcade.collide(this.z1, this.layer2, this.checkZKeys, null, this);
-				this.physics.arcade.overlap(this.z1, this.pacman, this.killMario, null, this);
+//				this.physics.arcade.collide(this.z1, this.layer2, this.checkZKeys, null, this);
+//				this.physics.arcade.overlap(this.z1, this.pacman, this.killMario, null, this);
 			
-		
 				this.physics.arcade.overlap(this.pacman, this.mushrooms, this.eatMushroom, null, this);
+				
 				this.marker.x = this.math.snapToFloor(Math.floor(this.pacman.x), this.gridsize) / this.gridsize;
 				this.marker.y = this.math.snapToFloor(Math.floor(this.pacman.y), this.gridsize) / this.gridsize;
 	

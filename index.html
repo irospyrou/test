@@ -78,7 +78,7 @@
             this.load.baseURL = 'https://irospyrou.github.io/test/';
             this.load.crossOrigin = 'anonymous';
 	    this.load.image('mushroom1', 'assets/mushroom1.png');
-	    this.load.image('door1', 'assets/door.png');
+	    this.load.image('door', 'assets/door.png');
             this.load.image('coin1', 'assets/coin1.png');
 	    this.load.image('star2', 'assets/star2.png');
             this.load.image('tiles', 'assets/pacman-tiles.png');
@@ -103,7 +103,7 @@
             this.map.createFromTiles(7, this.safetile, 'coin1', this.layer, this.dots);
 	    //this.map.createFromTiles(35, this.safetile, 'mushroom1', this.layer, this.mushrooms);
             this.map.createFromTiles(35, this.safetile, 'mushroom1', this.layer, this.mushrooms);
-            this.map.createFromTiles(36, this.safetile, 'door1', this.layer, this.teleport);
+            this.map.createFromTiles(36, this.safetile, 'door', this.layer, this.teleport);
 
 		//  The dots will need to be offset by 6px to put them back in the middle of the grid
             this.dots.setAll('x', 6, false, false, 1);

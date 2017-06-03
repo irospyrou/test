@@ -23,6 +23,7 @@
 	<script type="text/javascript">
 
 		var timer;
+		var ms = '-';
 		var sec = '-';
 	        var min = '-';
 		var game = new Phaser.Game(450, 550, Phaser.AUTO);
@@ -131,9 +132,9 @@
             this.bonusText = game.add.text(315, 500, 'Bonus: 0', { fontSize: '20px Calibri', fill: 'white' });
 	    
 		
-	    timer = game.time.create(false);
-	    timer.loop(10000000, this.updateTime, this);
-	    timer.start();
+	    //timer = game.time.create(false);
+	   // timer.loop(10000000, this.updateTime, this);
+	    //timer.start();
 	   
 		this.time = game.add.text(0, 0, "Time: " + min + ":" + sec, { fontSize: '20px Calibri', fill: 'white' });
 		
@@ -154,21 +155,10 @@
 
         },
 	    
-	   updateTime: function () {
-		 if( sec == "-"){
-			    this.input.disabled = false;
-		    	sec = 0;
-			min = 0;
-		    }
-		    else if( sec == 59 ){
-		    	min++;
-			sec = 0;
-		    }
-		    else{
-		    	sec++;
-		    }
+	  // updateTime: function () {
+		
 		  
-	   },
+	  // },
 
         checkKeys: function () {
 
@@ -310,7 +300,23 @@
         },
 
         update: function () {
-          
+           if( ms == "-"){
+			   // this.input.disabled = false;
+		    	ms = 0;
+		   sec = 0;
+			min = 0;
+		    }
+		    else if( ms == 59 ){
+		    	sec++;
+			ms = 0;
+			    if (sec == 59 ){
+			    	sec = 0;
+			    	min++;
+			    }
+		    }
+		    else{
+		    	ms++;
+		    }
             this.physics.arcade.collide(this.pacman, this.layer);
             this.physics.arcade.overlap(this.pacman, this.dots, this.eatDot, null, this);
 		
